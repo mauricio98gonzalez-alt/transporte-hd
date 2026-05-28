@@ -1,0 +1,1196 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#0f0f0f">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Transporte HD">
+<link rel="manifest" href="manifest.json">
+<title>Transporte HD</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --orange:#F96302;
+  --orange-dark:#1a0800;
+  --orange-dim:#2a1000;
+  --bg:#0f0f0f;
+  --bg2:#1a1a1a;
+  --bg3:#222;
+  --bg4:#1e1e1e;
+  --border:#2a2a2a;
+  --border2:#333;
+  --text:#f0f0f0;
+  --text2:#aaa;
+  --text3:#666;
+  --text4:#444;
+  --green:#a3e635;
+  --green-bg:#0d1f0d;
+  --green-border:#1a3a1a;
+  --red:#ff6b6b;
+  --red-bg:#2a0a0a;
+  --amber:#ffa94d;
+  --amber-bg:#1e1200;
+  --blue:#74b9ff;
+  --blue-bg:#0a1428;
+}
+html,body{height:100%;background:var(--bg);font-family:'DM Sans',sans-serif;color:var(--text);overflow:hidden}
+#app{max-width:430px;margin:0 auto;height:100vh;display:flex;flex-direction:column;position:relative;overflow:hidden}
+
+/* SCREENS */
+.screen{display:none;flex-direction:column;flex:1;overflow:hidden}
+.screen.active{display:flex}
+.scrollable{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-bottom:4px}
+.scrollable::-webkit-scrollbar{display:none}
+
+/* HEADER */
+.hdr{padding:16px 20px 10px;flex-shrink:0}
+.hdr-row{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.hdr h1{font-size:19px;font-weight:600;color:var(--text)}
+.hdr p{font-size:12px;color:var(--text3);margin-top:1px}
+.logo-chip{background:var(--orange-dark);border:1px solid var(--orange);border-radius:8px;padding:5px 10px;font-size:10px;font-weight:600;color:var(--orange);letter-spacing:.5px;white-space:nowrap;flex-shrink:0}
+
+/* BOLITAS */
+.bolitas-row{display:flex;gap:10px;padding:0 20px 12px;overflow-x:auto;flex-shrink:0}
+.bolitas-row::-webkit-scrollbar{display:none}
+.av-wrap{display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;flex-shrink:0}
+.av-wrap span{font-size:10px;color:var(--text3);transition:color .2s}
+.av-wrap.sel span{color:var(--orange)}
+.av{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;border:2.5px solid transparent;transition:border-color .2s,transform .15s;cursor:pointer}
+.av.sel{border-color:var(--orange);transform:scale(1.08)}
+.av.mg{background:#1a0800;color:var(--orange)}
+.av.kr{background:#1a1000;color:var(--amber)}
+.av.tl{background:#0a1e14;color:#51cf66}
+.av.bv{background:#0a0f1e;color:var(--blue)}
+
+/* ADD BTN */
+.add-btn{margin:0 20px 14px;background:var(--orange);border:none;border-radius:12px;padding:14px 16px;display:flex;align-items:center;gap:12px;cursor:pointer;width:calc(100% - 40px);transition:opacity .15s}
+.add-btn:active{opacity:.85}
+.add-btn .ic{width:34px;height:34px;background:rgba(255,255,255,.18);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.add-btn .ic i{font-size:18px;color:#fff}
+.add-btn strong{display:block;font-size:13px;font-weight:600;color:#fff}
+.add-btn small{display:block;font-size:11px;color:rgba(255,255,255,.7);margin-top:1px}
+
+/* SECTION LABEL */
+.sec-lbl{padding:0 20px 8px;font-size:10px;font-weight:600;color:var(--text4);letter-spacing:1.2px;text-transform:uppercase;flex-shrink:0}
+
+/* TASK CARD */
+.tlist{padding:0 20px;display:flex;flex-direction:column;gap:8px}
+.tc{border-radius:12px;padding:12px;cursor:pointer;transition:border-color .2s,background .25s;border:0.5px solid var(--border);background:var(--bg2)}
+.tc:active{opacity:.9}
+.tc.done-card{background:var(--green-bg);border-color:var(--green-border)}
+.tc.overdue-card{background:#1a0505;border-color:#4a1010}
+.tc-row{display:flex;align-items:flex-start;gap:10px}
+.tc-chk{width:20px;height:20px;border-radius:50%;border:1.5px solid var(--border2);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;cursor:pointer;transition:all .2s}
+.tc-chk.checked{background:var(--green);border-color:var(--green)}
+.tc-chk.checked i{font-size:11px;color:var(--green-bg)}
+.tc-body{flex:1;min-width:0}
+.tc-title{font-size:13px;font-weight:500;color:var(--text);display:block;line-height:1.3}
+.tc-title.struck{text-decoration:line-through;color:var(--text3)}
+.tc-meta{display:flex;align-items:center;gap:5px;margin-top:5px;flex-wrap:wrap}
+.badge{font-size:10px;padding:2px 7px;border-radius:20px;font-weight:500;white-space:nowrap}
+.b-red{background:var(--red-bg);color:var(--red)}
+.b-amber{background:var(--amber-bg);color:var(--amber)}
+.b-blue{background:var(--blue-bg);color:var(--blue)}
+.b-gray{background:var(--bg3);color:var(--text3)}
+.b-orange{background:var(--orange-dark);color:var(--orange)}
+.b-green{background:var(--green-bg);color:var(--green)}
+.b-overdue{background:#3a0808;color:#ff9999}
+.tc-prog{margin-top:8px;background:var(--bg3);border-radius:4px;height:4px}
+.tc-prog-fill{height:4px;border-radius:4px;background:var(--orange);transition:width .3s}
+.tc-av{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;flex-shrink:0;margin-top:1px}
+
+/* BOTTOM NAV */
+.bnav{display:flex;background:#111;border-top:0.5px solid #1e1e1e;padding:10px 0 max(16px, env(safe-area-inset-bottom));flex-shrink:0}
+.ni{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;padding:2px 0}
+.ni i{font-size:20px;color:var(--text4);transition:color .2s}
+.ni span{font-size:9px;color:var(--text4);transition:color .2s;text-transform:uppercase;letter-spacing:.5px;font-weight:600}
+.ni.active i,.ni.active span{color:var(--orange)}
+
+/* ===== CALENDAR ===== */
+.cal-controls{padding:0 20px 10px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.cal-controls span{font-size:14px;font-weight:600;color:var(--text)}
+.cal-controls button{background:none;border:none;color:var(--text3);cursor:pointer;font-size:20px;padding:2px 8px;line-height:1}
+
+/* Mini calendar grid */
+.mini-cal{margin:0 20px 16px;background:var(--bg2);border:0.5px solid var(--border);border-radius:12px;padding:12px;flex-shrink:0}
+.mini-cal-days{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-bottom:4px}
+.mini-cal-dh{font-size:10px;color:var(--text4);text-align:center;font-weight:600;padding:3px 0}
+.mini-cal-day{min-height:32px;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:3px 1px;border-radius:6px;cursor:pointer;position:relative}
+.mini-cal-day .dn{font-size:12px;color:var(--text3);line-height:1;font-weight:500}
+.mini-cal-day.today .dn{color:#fff;background:var(--orange);border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:11px}
+.mini-cal-day.selected-day{background:var(--orange-dark)}
+.mini-cal-day.selected-day .dn{color:var(--orange)}
+.mini-cal-day .dots{display:flex;gap:2px;margin-top:2px;flex-wrap:wrap;justify-content:center;max-width:24px}
+.mini-cal-day .dot{width:4px;height:4px;border-radius:50%}
+
+/* Timeline */
+.cal-timeline{padding:0 20px;display:flex;flex-direction:column;gap:0}
+.cal-day-block{display:flex;gap:12px;margin-bottom:14px}
+.cal-day-col{width:34px;flex-shrink:0;display:flex;flex-direction:column;align-items:center;padding-top:4px}
+.cal-day-num{font-size:16px;font-weight:600;color:var(--text3);line-height:1}
+.cal-day-wk{font-size:10px;color:var(--text4);margin-top:2px}
+.cal-day-col.today-col .cal-day-num{color:#fff;background:var(--orange);border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;font-size:13px}
+.cal-day-col.today-col .cal-day-wk{color:var(--orange)}
+.cal-tasks-col{flex:1;display:flex;flex-direction:column;gap:6px}
+.cal-pill{border-radius:8px;padding:9px 11px;border-left:3px solid transparent;cursor:pointer;transition:opacity .15s}
+.cal-pill:active{opacity:.8}
+.cal-pill strong{display:block;font-size:12px;font-weight:500;line-height:1.3}
+.cal-pill small{font-size:10px;opacity:.65;margin-top:2px;display:block}
+.p-orange{background:#1a0a00;border-left-color:var(--orange)}
+.p-orange strong{color:#ffb87a}
+.p-red{background:#1a0808;border-left-color:var(--red)}
+.p-red strong{color:#ffaaaa}
+.p-amber{background:#1a1000;border-left-color:var(--amber)}
+.p-amber strong{color:#ffd494}
+.p-blue{background:#0a1020;border-left-color:var(--blue)}
+.p-blue strong{color:#aad4ff}
+.p-green{background:#0a1a0a;border-left-color:var(--green)}
+.p-green strong{color:#c5f080}
+.p-overdue{background:#1a0505;border-left-color:var(--red)}
+.p-overdue strong{color:#ff9999}
+.nodate-block{padding:0 20px;margin-bottom:14px}
+.nodate-lbl{font-size:10px;font-weight:600;color:var(--text4);letter-spacing:1px;text-transform:uppercase;margin-bottom:8px}
+.nodate-pill{background:var(--bg2);border-radius:8px;padding:9px 12px;margin-bottom:6px;border-left:3px solid var(--border2);cursor:pointer}
+.nodate-pill strong{font-size:12px;color:var(--text2);font-weight:500}
+
+/* ===== DASHBOARD ===== */
+.period-tabs{display:flex;gap:6px;padding:0 20px 14px;flex-shrink:0}
+.period-tab{flex:1;padding:8px 4px;border-radius:8px;border:0.5px solid var(--border);background:var(--bg2);font-size:12px;color:var(--text3);cursor:pointer;font-family:'DM Sans',sans-serif;font-weight:500;text-align:center;transition:all .2s}
+.period-tab.active{background:var(--orange-dark);border-color:var(--orange);color:var(--orange)}
+.metrics-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:0 20px 14px;flex-shrink:0}
+.metric-card{background:var(--bg2);border:0.5px solid var(--border);border-radius:12px;padding:12px}
+.metric-card.full{grid-column:1/-1}
+.metric-n{font-size:26px;font-weight:600;color:var(--orange);line-height:1}
+.metric-l{font-size:11px;color:var(--text3);margin-top:3px}
+.metric-bar{margin-top:8px;background:var(--bg3);border-radius:4px;height:6px}
+.metric-bar-fill{height:6px;border-radius:4px;background:var(--orange);transition:width .5s}
+.metric-n.red{color:var(--red)}
+.metric-n.green{color:var(--green)}
+.member-metric{display:flex;align-items:center;gap:10px;padding:10px 20px;border-bottom:0.5px solid var(--border)}
+.member-metric:last-child{border-bottom:none}
+.mm-info{flex:1}
+.mm-name{font-size:13px;font-weight:500;color:var(--text)}
+.mm-bar{margin-top:5px;background:var(--bg3);border-radius:4px;height:5px;width:100%}
+.mm-bar-fill{height:5px;border-radius:4px;background:var(--orange);transition:width .6s}
+.mm-pct{font-size:13px;font-weight:600;color:var(--orange);min-width:38px;text-align:right}
+.mm-counts{font-size:10px;color:var(--text3);margin-top:2px}
+
+/* ===== HISTORIAL ===== */
+.hist-card{background:var(--bg2);border:0.5px solid var(--green-border);border-radius:12px;padding:12px;margin:0 20px 8px;cursor:pointer}
+.hist-title{font-size:13px;font-weight:500;color:var(--text2);text-decoration:line-through}
+.hist-meta{display:flex;gap:6px;margin-top:5px;flex-wrap:wrap;align-items:center}
+.hist-date{font-size:11px;color:var(--text3)}
+
+/* ===== OVERLAYS ===== */
+.overlay{position:absolute;inset:0;background:rgba(0,0,0,.8);display:none;align-items:flex-end;z-index:20}
+.overlay.open{display:flex}
+.sheet{background:#141414;border-radius:20px 20px 0 0;width:100%;max-height:92%;overflow-y:auto;padding:20px;padding-bottom:max(20px,env(safe-area-inset-bottom))}
+.sheet::-webkit-scrollbar{display:none}
+.sh-handle{width:36px;height:3px;background:var(--border2);border-radius:2px;margin:0 auto 16px}
+.sh-title{font-size:16px;font-weight:600;color:var(--text);margin-bottom:4px}
+.sh-sub{font-size:12px;color:var(--text3);margin-bottom:16px}
+
+/* FORM ELEMENTS */
+.flbl{font-size:11px;color:var(--text3);margin-bottom:5px;text-transform:uppercase;letter-spacing:.8px;font-weight:600}
+.finp{width:100%;background:var(--bg4);border:0.5px solid var(--border2);border-radius:9px;padding:11px 13px;color:var(--text);font-size:13px;font-family:'DM Sans',sans-serif;outline:none;margin-bottom:14px}
+.finp:focus{border-color:var(--orange)}
+textarea.finp{resize:none}
+select.finp{cursor:pointer}
+.frow{display:flex;gap:8px}
+.frow .finp{flex:1;margin-bottom:0}
+
+/* MIC */
+.mic-row{display:flex;gap:8px;margin-bottom:14px}
+.mic-btn{width:46px;height:46px;border-radius:10px;background:var(--orange-dark);border:1px solid var(--orange);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;transition:all .2s}
+.mic-btn i{font-size:20px;color:var(--orange)}
+.mic-btn.rec{background:var(--orange);animation:pulse 1s infinite}
+.mic-btn.rec i{color:#fff}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(249,99,2,.4)}50%{box-shadow:0 0 0 10px rgba(249,99,2,0)}}
+
+/* NOTIF OPTIONS */
+.notif-opts{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
+.notif-opt{background:var(--bg4);border:0.5px solid var(--border2);border-radius:9px;padding:10px;text-align:center;cursor:pointer;font-size:12px;color:var(--text3);font-family:'DM Sans',sans-serif;transition:all .2s}
+.notif-opt.sel{background:var(--orange-dark);border-color:var(--orange);color:var(--orange);font-weight:600}
+.custom-notif{background:var(--bg4);border:0.5px solid var(--border2);border-radius:9px;padding:12px;margin-bottom:14px;display:none}
+.custom-notif.show{display:block}
+
+/* SUBPENDIENTES */
+.sub-list{display:flex;flex-direction:column;gap:6px;margin-bottom:12px}
+.sub-item{display:flex;align-items:center;gap:9px;background:var(--bg4);border-radius:8px;padding:9px 11px}
+.sub-chk{width:18px;height:18px;border-radius:50%;border:1.5px solid var(--border2);display:flex;align-items:center;justify-content:center;flex-shrink:0;cursor:pointer;transition:all .2s}
+.sub-chk.done{background:var(--green);border-color:var(--green)}
+.sub-chk.done i{font-size:10px;color:var(--green-bg)}
+.sub-txt{flex:1;font-size:12px;color:var(--text2)}
+.sub-txt.struck{text-decoration:line-through;color:var(--text4)}
+.sub-add-row{display:flex;gap:8px;margin-bottom:14px}
+.sub-add-row input{flex:1;background:var(--bg4);border:0.5px solid var(--border2);border-radius:9px;padding:9px 12px;color:var(--text);font-size:12px;font-family:'DM Sans',sans-serif;outline:none}
+.sub-add-row input:focus{border-color:var(--orange)}
+.sub-add-row button{background:var(--orange-dark);border:1px solid var(--orange);border-radius:9px;padding:9px 12px;color:var(--orange);font-size:12px;cursor:pointer;font-family:'DM Sans',sans-serif;font-weight:600;white-space:nowrap}
+
+/* COMMENTS */
+.comments-list{display:flex;flex-direction:column;gap:8px;margin-bottom:10px}
+.comment{display:flex;gap:9px}
+.comment .cb{flex:1;background:var(--bg4);border-radius:9px;padding:9px 11px}
+.comment .cb .cname{font-size:10px;color:var(--orange);font-weight:600;margin-bottom:3px}
+.comment .cb .ctxt{font-size:12px;color:var(--text2);line-height:1.4}
+.comment-input-row{display:flex;gap:8px;margin-bottom:14px}
+.comment-input-row .finp{flex:1;margin:0}
+.send-btn{background:var(--orange);border:none;border-radius:9px;padding:11px 14px;cursor:pointer;flex-shrink:0}
+.send-btn i{font-size:14px;color:#fff}
+
+/* PROGRESS */
+.prog-sec{background:var(--bg4);border-radius:10px;padding:12px;margin-bottom:14px}
+.prog-lbl{display:flex;justify-content:space-between;font-size:11px;color:var(--text3);margin-bottom:8px}
+.prog-track{background:var(--bg3);border-radius:4px;height:8px}
+.prog-fill{height:8px;border-radius:4px;background:var(--orange);transition:width .4s}
+
+/* BUTTONS */
+.btn-row{display:flex;gap:8px;margin-top:6px}
+.btn{flex:1;padding:12px;border-radius:10px;border:none;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:opacity .15s}
+.btn:active{opacity:.85}
+.btn-cancel{background:var(--bg4);color:var(--text3);border:0.5px solid var(--border2)}
+.btn-save{background:var(--orange);color:#fff}
+.btn-danger{background:#2a0808;color:var(--red);border:0.5px solid #4a1010}
+
+/* DIVIDER */
+.divider{height:0.5px;background:var(--border);margin:14px 0}
+
+/* EMPTY STATE */
+.empty{padding:32px 20px;text-align:center;color:var(--text4);font-size:13px}
+.empty i{font-size:32px;display:block;margin-bottom:8px;color:var(--text4)}
+</style>
+</head>
+<body>
+<div id="app">
+
+<!-- ===== HOME ===== -->
+<div class="screen active" id="sc-home">
+  <div class="hdr">
+    <div class="hdr-row">
+      <div><h1 id="home-title">TRANSPORTE HD</h1><p id="home-sub">Selecciona un perfil</p></div>
+      <div class="logo-chip">HD</div>
+    </div>
+  </div>
+  <div class="bolitas-row" id="home-bolitas"></div>
+  <button class="add-btn" onclick="openNew()">
+    <div class="ic"><i class="ti ti-plus"></i></div>
+    <div>
+      <strong>Nuevo pendiente</strong>
+      <small id="add-btn-sub">Selecciona un perfil primero</small>
+    </div>
+  </button>
+  <div class="sec-lbl" id="home-tasks-lbl">Pendientes</div>
+  <div class="scrollable">
+    <div class="tlist" id="home-tasks"></div>
+    <div style="height:16px"></div>
+  </div>
+  <div class="bnav">
+    <div class="ni active" onclick="showScreen('home')"><i class="ti ti-home"></i><span>Inicio</span></div>
+    <div class="ni" onclick="showScreen('calendar')"><i class="ti ti-calendar"></i><span>Calendario</span></div>
+    <div class="ni" onclick="showScreen('dashboard')"><i class="ti ti-chart-bar"></i><span>Equipo</span></div>
+    <div class="ni" onclick="showScreen('history')"><i class="ti ti-history"></i><span>Historial</span></div>
+  </div>
+</div>
+
+<!-- ===== CALENDAR ===== -->
+<div class="screen" id="sc-calendar">
+  <div class="hdr">
+    <div class="hdr-row">
+      <div><h1>Calendario</h1><p id="cal-sub">Todos</p></div>
+      <div class="logo-chip">HD</div>
+    </div>
+  </div>
+  <div class="bolitas-row" id="cal-bolitas"></div>
+  <div class="cal-controls">
+    <button onclick="changeMonth(-1)">‹</button>
+    <span id="cal-title"></span>
+    <button onclick="changeMonth(1)">›</button>
+  </div>
+  <!-- Mini grid calendar -->
+  <div class="mini-cal" id="mini-cal"></div>
+  <div class="scrollable">
+    <div class="cal-timeline" id="cal-timeline"></div>
+    <div id="nodate-block" style="display:none">
+      <div class="nodate-block">
+        <div class="nodate-lbl">Sin fecha definida</div>
+        <div id="nodate-list"></div>
+      </div>
+    </div>
+    <div style="height:16px"></div>
+  </div>
+  <div class="bnav">
+    <div class="ni" onclick="showScreen('home')"><i class="ti ti-home"></i><span>Inicio</span></div>
+    <div class="ni active" onclick="showScreen('calendar')"><i class="ti ti-calendar"></i><span>Calendario</span></div>
+    <div class="ni" onclick="showScreen('dashboard')"><i class="ti ti-chart-bar"></i><span>Equipo</span></div>
+    <div class="ni" onclick="showScreen('history')"><i class="ti ti-history"></i><span>Historial</span></div>
+  </div>
+</div>
+
+<!-- ===== DASHBOARD ===== -->
+<div class="screen" id="sc-dashboard">
+  <div class="hdr">
+    <div class="hdr-row">
+      <div><h1>Equipo</h1><p>Dashboard de cumplimiento</p></div>
+      <div class="logo-chip">HD</div>
+    </div>
+  </div>
+  <div class="period-tabs">
+    <div class="period-tab active" onclick="setPeriod('today',this)">Hoy</div>
+    <div class="period-tab" onclick="setPeriod('week',this)">Semana</div>
+    <div class="period-tab" onclick="setPeriod('month',this)">Mes</div>
+    <div class="period-tab" onclick="setPeriod('all',this)">Todo</div>
+  </div>
+  <div class="scrollable">
+    <div class="metrics-grid" id="metrics-grid"></div>
+    <div class="sec-lbl" style="padding-top:4px">Por persona</div>
+    <div id="member-metrics" style="background:var(--bg2);border:0.5px solid var(--border);border-radius:12px;margin:0 20px 16px;overflow:hidden"></div>
+    <div style="height:16px"></div>
+  </div>
+  <div class="bnav">
+    <div class="ni" onclick="showScreen('home')"><i class="ti ti-home"></i><span>Inicio</span></div>
+    <div class="ni" onclick="showScreen('calendar')"><i class="ti ti-calendar"></i><span>Calendario</span></div>
+    <div class="ni active" onclick="showScreen('dashboard')"><i class="ti ti-chart-bar"></i><span>Equipo</span></div>
+    <div class="ni" onclick="showScreen('history')"><i class="ti ti-history"></i><span>Historial</span></div>
+  </div>
+</div>
+
+<!-- ===== HISTORY ===== -->
+<div class="screen" id="sc-history">
+  <div class="hdr">
+    <div class="hdr-row">
+      <div><h1>Historial</h1><p>Pendientes completados</p></div>
+      <div class="logo-chip">HD</div>
+    </div>
+  </div>
+  <div class="bolitas-row" id="hist-bolitas"></div>
+  <div class="scrollable">
+    <div id="hist-list"></div>
+    <div style="height:16px"></div>
+  </div>
+  <div class="bnav">
+    <div class="ni" onclick="showScreen('home')"><i class="ti ti-home"></i><span>Inicio</span></div>
+    <div class="ni" onclick="showScreen('calendar')"><i class="ti ti-calendar"></i><span>Calendario</span></div>
+    <div class="ni" onclick="showScreen('dashboard')"><i class="ti ti-chart-bar"></i><span>Equipo</span></div>
+    <div class="ni active" onclick="showScreen('history')"><i class="ti ti-history"></i><span>Historial</span></div>
+  </div>
+</div>
+
+<!-- ===== OVERLAY: NUEVO PENDIENTE ===== -->
+<div class="overlay" id="ov-new" onclick="closeOverlay('ov-new')">
+  <div class="sheet" onclick="event.stopPropagation()">
+    <div class="sh-handle"></div>
+    <div class="sh-title">Nuevo pendiente</div>
+    <div class="sh-sub" id="new-sheet-sub">Asignando a...</div>
+    <div class="mic-row">
+      <div class="mic-btn" id="micBtn" onclick="toggleMic()"><i class="ti ti-microphone"></i></div>
+      <input class="finp" id="new-title" style="flex:1;margin:0" placeholder="Título del pendiente...">
+    </div>
+    <div class="flbl">Asignar a</div>
+    <select class="finp" id="new-assign"></select>
+    <div class="flbl">Prioridad</div>
+    <select class="finp" id="new-priority">
+      <option value="normal">Normal</option>
+      <option value="urgente">Urgente</option>
+      <option value="baja">Baja prioridad</option>
+    </select>
+    <div class="flbl">Fecha y hora límite (opcional)</div>
+    <div class="frow" style="margin-bottom:14px">
+      <input class="finp" type="date" id="new-date" style="margin:0">
+      <input class="finp" type="time" id="new-time" style="margin:0">
+    </div>
+    <div id="notif-section" style="display:none">
+      <div class="flbl">Notificarme</div>
+      <div class="notif-opts">
+        <div class="notif-opt" onclick="selNotif('60',this)">1 hora antes</div>
+        <div class="notif-opt" onclick="selNotif('30',this)">30 min antes</div>
+        <div class="notif-opt" onclick="selNotif('15',this)">15 min antes</div>
+        <div class="notif-opt" onclick="selNotif('custom',this)">Otra (personalizada)</div>
+      </div>
+      <div class="custom-notif" id="custom-notif">
+        <div class="flbl">Fecha y hora exacta de la alarma</div>
+        <div class="frow">
+          <input class="finp" type="date" id="custom-date" style="margin:0">
+          <input class="finp" type="time" id="custom-time" style="margin:0">
+        </div>
+      </div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-cancel" onclick="closeOverlay('ov-new')">Cancelar</button>
+      <button class="btn btn-save" onclick="saveTask()">Guardar ✓</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== OVERLAY: DETALLE ===== -->
+<div class="overlay" id="ov-detail" onclick="closeOverlay('ov-detail')">
+  <div class="sheet" onclick="event.stopPropagation()">
+    <div class="sh-handle"></div>
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:8px">
+      <div class="sh-title" id="det-title" style="flex:1"></div>
+      <div id="det-av" style="width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;flex-shrink:0;margin-top:2px"></div>
+    </div>
+    <div style="display:flex;gap:5px;margin-bottom:14px;flex-wrap:wrap" id="det-badges"></div>
+    <div class="prog-sec">
+      <div class="prog-lbl"><span>Progreso general</span><span id="det-pct">0%</span></div>
+      <div class="prog-track"><div class="prog-fill" id="det-prog-fill" style="width:0%"></div></div>
+    </div>
+    <div class="flbl">Subpendientes</div>
+    <div class="sub-list" id="det-subs"></div>
+    <div class="sub-add-row">
+      <input placeholder="Agregar subpendiente..." id="sub-input">
+      <button onclick="addSub()">+ Agregar</button>
+    </div>
+    <div class="divider"></div>
+    <div class="flbl">Comentarios</div>
+    <div class="comments-list" id="det-comments"></div>
+    <div class="comment-input-row">
+      <input class="finp" id="comment-input" placeholder="Escribe un comentario...">
+      <button class="send-btn" onclick="addComment()"><i class="ti ti-send"></i></button>
+    </div>
+    <div class="divider"></div>
+    <div class="btn-row">
+      <button class="btn btn-cancel" onclick="closeOverlay('ov-detail')">Cerrar</button>
+      <button class="btn btn-danger" onclick="confirmDelete()"><i class="ti ti-trash" style="font-size:14px;vertical-align:-1px"></i> Eliminar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== OVERLAY: CONFIRMAR ELIMINAR ===== -->
+<div class="overlay" id="ov-delete" onclick="closeOverlay('ov-delete')" style="z-index:30">
+  <div class="sheet" onclick="event.stopPropagation()">
+    <div class="sh-handle"></div>
+    <div class="sh-title">¿Eliminar pendiente?</div>
+    <div class="sh-sub">Esta acción no se puede deshacer.</div>
+    <div class="btn-row">
+      <button class="btn btn-cancel" onclick="closeOverlay('ov-delete')">Cancelar</button>
+      <button class="btn btn-danger" onclick="deleteTask()">Sí, eliminar</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script>
+// ============================================================
+// CONFIG — reemplaza con tus credenciales de Supabase
+// ============================================================
+const SUPABASE_URL = 'https://sxlinwitipoqhsnxojsr.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_iF1B47lsNgniBwQDGboYmw_iUqpxeBk';
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+// ============================================================
+// CONSTANTS
+// ============================================================
+const MEMBERS = {
+  MG:{name:'Mauricio González',short:'Mauricio',cls:'mg'},
+  KR:{name:'Karla Rangel',short:'Karla',cls:'kr'},
+  TL:{name:'Tania Lozano',short:'Tania',cls:'tl'},
+  BV:{name:'Beatriz Valdés',short:'Beatriz',cls:'bv'}
+};
+const PILL_COLORS = ['p-orange','p-blue','p-amber','p-green'];
+const MONTHS = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+const DAYS = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
+const DAYS_SHORT = ['D','L','M','M','J','V','S'];
+const HISTORY_DAYS = 10;
+
+// ============================================================
+// STATE
+// ============================================================
+let tasks = [];
+let activeMember = 'MG';
+let calMember = 'all';
+let histMember = 'all';
+let currentMonth = new Date().getMonth();
+let currentYear = new Date().getFullYear();
+let currentTaskId = null;
+let selectedNotif = '';
+let activePeriod = 'today';
+let recording = false;
+let selectedCalDay = null;
+
+// ============================================================
+// SUPABASE
+// ============================================================
+async function loadTasks() {
+  try {
+    const { data, error } = await sb.from('tasks').select('*').order('created_at', { ascending: false });
+    if (error) throw error;
+    tasks = data || [];
+    renderAll();
+  } catch(e) {
+    console.error('Error loading tasks:', e);
+    // Fallback to localStorage
+    const saved = localStorage.getItem('hd_tasks');
+    if (saved) tasks = JSON.parse(saved);
+    renderAll();
+  }
+}
+
+async function saveTaskToDB(task) {
+  try {
+    const { data, error } = await sb.from('tasks').upsert(task).select();
+    if (error) throw error;
+    return data?.[0];
+  } catch(e) {
+    console.error('Error saving task:', e);
+    saveFallback();
+    return null;
+  }
+}
+
+async function deleteTaskFromDB(id) {
+  try {
+    await sb.from('tasks').delete().eq('id', id);
+  } catch(e) {
+    console.error('Error deleting task:', e);
+    saveFallback();
+  }
+}
+
+function saveFallback() {
+  localStorage.setItem('hd_tasks', JSON.stringify(tasks));
+}
+
+// Realtime subscription
+function setupRealtime() {
+  sb.channel('tasks-changes')
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'tasks' }, () => loadTasks())
+    .subscribe();
+}
+
+// ============================================================
+// UTILS
+// ============================================================
+function avHtml(key, size) {
+  const m = MEMBERS[key];
+  return `<div class="av ${m.cls}" style="width:${size}px;height:${size}px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:${Math.floor(size*.28)}px;font-weight:600;flex-shrink:0">${key}</div>`;
+}
+
+function getSubProgress(t) {
+  if (!t.subs || !t.subs.length) return t.done ? 100 : 0;
+  return Math.round(t.subs.filter(s=>s.d).length / t.subs.length * 100);
+}
+
+function isOverdue(t) {
+  if (t.done || !t.due_date) return false;
+  const due = new Date(t.due_date);
+  return due < new Date();
+}
+
+function formatDue(t) {
+  if (!t.due_date) return null;
+  const d = new Date(t.due_date);
+  const day = d.getDate();
+  const mon = MONTHS[d.getMonth()].slice(0,3);
+  const hr = d.getHours().toString().padStart(2,'0');
+  const mn = d.getMinutes().toString().padStart(2,'0');
+  return `${day} ${mon} · ${hr}:${mn}`;
+}
+
+function priorityBadge(p) {
+  if (p==='urgente') return '<span class="badge b-red">Urgente</span>';
+  if (p==='baja') return '<span class="badge b-gray">Baja</span>';
+  return '';
+}
+
+function getDateKey(dateStr) {
+  return dateStr ? dateStr.split('T')[0] : null;
+}
+
+function getPeriodRange(period) {
+  const now = new Date();
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  if (period === 'today') {
+    return { start: today, end: new Date(today.getTime() + 86400000) };
+  } else if (period === 'week') {
+    const day = today.getDay();
+    const mon = new Date(today); mon.setDate(today.getDate() - day + (day===0?-6:1));
+    const sun = new Date(mon); sun.setDate(mon.getDate() + 7);
+    return { start: mon, end: sun };
+  } else if (period === 'month') {
+    return { start: new Date(now.getFullYear(), now.getMonth(), 1), end: new Date(now.getFullYear(), now.getMonth()+1, 1) };
+  }
+  return null;
+}
+
+function taskInPeriod(t, period) {
+  if (period === 'all') return true;
+  if (!t.due_date) return false;
+  const r = getPeriodRange(period);
+  const d = new Date(t.due_date);
+  return d >= r.start && d < r.end;
+}
+
+// ============================================================
+// RENDER BOLITAS
+// ============================================================
+function renderBolitas(containerId, active, onClickFn, includeAll) {
+  const el = document.getElementById(containerId);
+  let html = '';
+  if (includeAll) {
+    html += `<div class="av-wrap ${active==='all'?'sel':''}" onclick="${onClickFn}('all')">
+      <div class="av mg ${active==='all'?'sel':''}" style="background:#1a1a1a;color:var(--text3)"><i class="ti ti-users" style="font-size:16px"></i></div>
+      <span>Todos</span>
+    </div>`;
+  }
+  Object.keys(MEMBERS).forEach(k => {
+    const m = MEMBERS[k];
+    const isSel = k === active;
+    html += `<div class="av-wrap ${isSel?'sel':''}" onclick="${onClickFn}('${k}')">
+      <div class="av ${m.cls} ${isSel?'sel':''}">${k}</div>
+      <span>${m.short}</span>
+    </div>`;
+  });
+  el.innerHTML = html;
+}
+
+// ============================================================
+// HOME
+// ============================================================
+function setActiveMember(key) {
+  activeMember = key;
+  const m = MEMBERS[key];
+  document.getElementById('home-title').textContent = m.name;
+  document.getElementById('home-sub').textContent = `Pendientes de ${m.short}`;
+  document.getElementById('add-btn-sub').textContent = `Para ${m.name}`;
+  document.getElementById('home-tasks-lbl').textContent = `Pendientes de ${m.short}`;
+  document.getElementById('new-assign').value = key;
+  document.getElementById('new-sheet-sub').textContent = `Asignado a ${m.name}`;
+  renderBolitas('home-bolitas', key, 'setActiveMember', false);
+  renderHomeTasks();
+}
+
+function renderHomeTasks() {
+  const el = document.getElementById('home-tasks');
+  const now = new Date();
+  const cutoff = new Date(now.getTime() - HISTORY_DAYS * 86400000);
+  const mine = tasks.filter(t => {
+    if (t.assignee !== activeMember) return false;
+    if (t.done) {
+      const completed = t.completed_at ? new Date(t.completed_at) : null;
+      return completed && completed > cutoff;
+    }
+    return true;
+  });
+  if (!mine.length) {
+    el.innerHTML = '<div class="empty"><i class="ti ti-check"></i>Sin pendientes activos</div>';
+    return;
+  }
+  // Sort: overdue first, then by due_date, then no date
+  mine.sort((a,b) => {
+    if (isOverdue(a) && !isOverdue(b)) return -1;
+    if (!isOverdue(a) && isOverdue(b)) return 1;
+    if (a.due_date && b.due_date) return new Date(a.due_date) - new Date(b.due_date);
+    if (a.due_date && !b.due_date) return -1;
+    if (!a.due_date && b.due_date) return 1;
+    return 0;
+  });
+  el.innerHTML = mine.map(renderTaskCard).join('');
+}
+
+function renderTaskCard(t) {
+  const pct = getSubProgress(t);
+  const overdue = isOverdue(t);
+  const dueStr = t.due_date ? `<span class="badge ${overdue?'b-overdue':'b-blue'}">${overdue?'⚠️ ':''} ${formatDue(t)}</span>` : '<span class="badge b-gray">Sin fecha</span>';
+  const notifStr = t.notif ? `<span class="badge b-orange"><i class="ti ti-bell" style="font-size:9px;vertical-align:-1px"></i></span>` : '';
+  const subsStr = (t.subs&&t.subs.length) ? `<span class="badge b-gray">${t.subs.filter(s=>s.d).length}/${t.subs.length} sub</span>` : '';
+  const cardClass = t.done ? 'done-card' : overdue ? 'overdue-card' : '';
+  return `<div class="tc ${cardClass}" onclick="openDetail(${t.id})">
+    <div class="tc-row">
+      <div class="tc-chk ${t.done?'checked':''}" onclick="event.stopPropagation();toggleDone(${t.id})">${t.done?'<i class="ti ti-check"></i>':''}</div>
+      <div class="tc-body">
+        <span class="tc-title ${t.done?'struck':''}">${t.title}</span>
+        <div class="tc-meta">${priorityBadge(t.priority)}${dueStr}${notifStr}${subsStr}</div>
+        ${(t.subs&&t.subs.length)?`<div class="tc-prog"><div class="tc-prog-fill" style="width:${pct}%"></div></div>`:''}
+      </div>
+      ${avHtml(t.assignee,26)}
+    </div>
+  </div>`;
+}
+
+// ============================================================
+// CALENDAR
+// ============================================================
+function setCalMember(key) {
+  calMember = key;
+  document.getElementById('cal-sub').textContent = key==='all' ? 'Todo el equipo' : `Pendientes de ${MEMBERS[key].name}`;
+  renderBolitas('cal-bolitas', key, 'setCalMember', true);
+  renderCalendar();
+}
+
+function renderCalendar() {
+  document.getElementById('cal-title').textContent = `${MONTHS[currentMonth]} ${currentYear}`;
+  const filtered = tasks.filter(t => {
+    if (t.done) return false;
+    return calMember==='all' || t.assignee===calMember;
+  });
+
+  // Mini calendar grid
+  renderMiniCal(filtered);
+
+  // Timeline
+  const withDate = filtered.filter(t => t.due_date && getDateKey(t.due_date).startsWith(`${currentYear}-${String(currentMonth+1).padStart(2,'0')}`));
+  const noDate = filtered.filter(t => !t.due_date);
+
+  const byDate = {};
+  withDate.forEach(t => {
+    const dk = getDateKey(t.due_date);
+    if (!byDate[dk]) byDate[dk] = [];
+    byDate[dk].push(t);
+  });
+
+  let html = '';
+  const sorted = Object.keys(byDate).sort();
+  const today = new Date();
+  let colorIdx = 0;
+
+  sorted.forEach(dk => {
+    if (selectedCalDay && dk !== selectedCalDay) return;
+    const [y,m,d] = dk.split('-');
+    const dateObj = new Date(parseInt(y), parseInt(m)-1, parseInt(d));
+    const isToday = parseInt(d)===today.getDate() && parseInt(m)-1===today.getMonth() && parseInt(y)===today.getFullYear();
+    html += `<div class="cal-day-block">
+      <div class="cal-day-col ${isToday?'today-col':''}">
+        <div class="cal-day-num">${parseInt(d)}</div>
+        <div class="cal-day-wk">${DAYS[dateObj.getDay()]}</div>
+      </div>
+      <div class="cal-tasks-col">
+        ${byDate[dk].map(t => {
+          const pclass = isOverdue(t) ? 'p-overdue' : PILL_COLORS[colorIdx++ % PILL_COLORS.length];
+          const pct = getSubProgress(t);
+          const m = calMember==='all' ? ` · ${MEMBERS[t.assignee].short}` : '';
+          const hr = t.due_date ? ` · ${new Date(t.due_date).getHours().toString().padStart(2,'0')}:${new Date(t.due_date).getMinutes().toString().padStart(2,'0')}` : '';
+          return `<div class="cal-pill ${pclass}" onclick="openDetail(${t.id})">
+            <strong>${t.title}</strong>
+            <small>${t.priority==='urgente'?'🔴 Urgente':''}${hr}${m}${pct>0?` · ${pct}%`:''}</small>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>`;
+  });
+
+  if (!sorted.length || (selectedCalDay && !byDate[selectedCalDay])) {
+    html = `<div class="empty" style="padding:20px 20px"><i class="ti ti-calendar-off"></i>Sin pendientes${selectedCalDay?' este día':' este mes'}</div>`;
+  }
+  document.getElementById('cal-timeline').innerHTML = html;
+
+  // No date section
+  if (noDate.length && !selectedCalDay) {
+    document.getElementById('nodate-block').style.display = 'block';
+    document.getElementById('nodate-list').innerHTML = noDate.map(t =>
+      `<div class="nodate-pill" onclick="openDetail(${t.id})"><strong>${t.title}</strong>${calMember==='all'?`<span style="font-size:10px;color:var(--text3);margin-left:6px">${MEMBERS[t.assignee].short}</span>`:''}</div>`
+    ).join('');
+  } else {
+    document.getElementById('nodate-block').style.display = 'none';
+  }
+}
+
+function renderMiniCal(filtered) {
+  const first = new Date(currentYear, currentMonth, 1).getDay();
+  const total = new Date(currentYear, currentMonth+1, 0).getDate();
+  const today = new Date();
+
+  // Build date->colors map
+  const dateColors = {};
+  filtered.forEach(t => {
+    if (!t.due_date) return;
+    const dk = getDateKey(t.due_date);
+    if (!dateColors[dk]) dateColors[dk] = [];
+    const m = MEMBERS[t.assignee];
+    const color = m.cls === 'mg' ? 'var(--orange)' : m.cls === 'kr' ? 'var(--amber)' : m.cls === 'tl' ? '#51cf66' : 'var(--blue)';
+    if (!dateColors[dk].includes(color)) dateColors[dk].push(color);
+  });
+
+  let html = `<div class="mini-cal-days">${DAYS_SHORT.map(d=>`<div class="mini-cal-dh">${d}</div>`).join('')}`;
+  for (let i=0;i<first;i++) html += `<div class="mini-cal-day"></div>`;
+  for (let d=1;d<=total;d++) {
+    const dk = `${currentYear}-${String(currentMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const isToday = d===today.getDate()&&currentMonth===today.getMonth()&&currentYear===today.getFullYear();
+    const isSel = dk === selectedCalDay;
+    const dots = (dateColors[dk]||[]).slice(0,3).map(c=>`<div class="dot" style="background:${c}"></div>`).join('');
+    html += `<div class="mini-cal-day ${isToday?'today':''} ${isSel?'selected-day':''}" onclick="selectCalDay('${dk}')">
+      <span class="dn">${d}</span>
+      ${dots?`<div class="dots">${dots}</div>`:''}
+    </div>`;
+  }
+  html += '</div>';
+  document.getElementById('mini-cal').innerHTML = html;
+}
+
+function selectCalDay(dk) {
+  if (selectedCalDay === dk) {
+    selectedCalDay = null;
+  } else {
+    selectedCalDay = dk;
+  }
+  renderCalendar();
+}
+
+function changeMonth(dir) {
+  currentMonth += dir;
+  if (currentMonth > 11) { currentMonth = 0; currentYear++; }
+  if (currentMonth < 0) { currentMonth = 11; currentYear--; }
+  selectedCalDay = null;
+  renderCalendar();
+}
+
+// ============================================================
+// DASHBOARD
+// ============================================================
+function setPeriod(p, el) {
+  activePeriod = p;
+  document.querySelectorAll('.period-tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  renderDashboard();
+}
+
+function renderDashboard() {
+  const filtered = tasks.filter(t => taskInPeriod(t, activePeriod));
+  const total = filtered.length;
+  const done = filtered.filter(t=>t.done).length;
+  const active = filtered.filter(t=>!t.done).length;
+  const urgent = filtered.filter(t=>!t.done&&t.priority==='urgente').length;
+  const overdue = filtered.filter(t=>isOverdue(t)).length;
+  const pct = total ? Math.round(done/total*100) : 0;
+
+  document.getElementById('metrics-grid').innerHTML = `
+    <div class="metric-card full">
+      <div class="metric-n">${pct}%</div>
+      <div class="metric-l">Cumplimiento del equipo</div>
+      <div class="metric-bar"><div class="metric-bar-fill" style="width:${pct}%"></div></div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-n">${active}</div>
+      <div class="metric-l">Pendientes activos</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-n ${done>0?'green':''}">${done}</div>
+      <div class="metric-l">Completados</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-n ${urgent>0?'red':''}">${urgent}</div>
+      <div class="metric-l">Urgentes</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-n ${overdue>0?'red':''}">${overdue}</div>
+      <div class="metric-l">Atrasados</div>
+    </div>
+  `;
+
+  const membersHtml = Object.keys(MEMBERS).map(k => {
+    const mt = filtered.filter(t=>t.assignee===k);
+    const md = mt.filter(t=>t.done).length;
+    const mu = mt.filter(t=>!t.done&&t.priority==='urgente').length;
+    const mo = mt.filter(t=>isOverdue(t)).length;
+    const mp = mt.length ? Math.round(md/mt.length*100) : 0;
+    return `<div class="member-metric">
+      ${avHtml(k,38)}
+      <div class="mm-info">
+        <div class="mm-name">${MEMBERS[k].short}</div>
+        <div class="mm-counts">${md}/${mt.length} completados${mu>0?` · <span style="color:var(--red)">${mu} urgentes</span>`:''}${mo>0?` · <span style="color:var(--red)">${mo} atrasados</span>`:''}</div>
+        <div class="mm-bar"><div class="mm-bar-fill" style="width:${mp}%"></div></div>
+      </div>
+      <div class="mm-pct">${mp}%</div>
+    </div>`;
+  }).join('');
+  document.getElementById('member-metrics').innerHTML = membersHtml;
+}
+
+// ============================================================
+// HISTORY
+// ============================================================
+function setHistMember(key) {
+  histMember = key;
+  renderBolitas('hist-bolitas', key, 'setHistMember', true);
+  renderHistory();
+}
+
+function renderHistory() {
+  const done = tasks.filter(t => {
+    if (!t.done) return false;
+    return histMember==='all' || t.assignee===histMember;
+  }).sort((a,b) => {
+    const da = a.completed_at ? new Date(a.completed_at) : new Date(0);
+    const db = b.completed_at ? new Date(b.completed_at) : new Date(0);
+    return db - da;
+  });
+
+  if (!done.length) {
+    document.getElementById('hist-list').innerHTML = '<div class="empty"><i class="ti ti-history"></i>Sin completados aún</div>';
+    return;
+  }
+
+  document.getElementById('hist-list').innerHTML = done.map(t => {
+    const completed = t.completed_at ? new Date(t.completed_at) : null;
+    const dateStr = completed ? `${completed.getDate()} ${MONTHS[completed.getMonth()].slice(0,3)} ${completed.getFullYear()}` : '';
+    return `<div class="hist-card" onclick="openDetail(${t.id})">
+      <div class="hist-title">${t.title}</div>
+      <div class="hist-meta">
+        ${avHtml(t.assignee,22)}
+        <span class="hist-date">${MEMBERS[t.assignee].short}${dateStr?` · Completado ${dateStr}`:''}</span>
+        ${t.subs&&t.subs.length?`<span class="badge b-green">${t.subs.length} subtareas</span>`:''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ============================================================
+// DETAIL
+// ============================================================
+function openDetail(id) {
+  currentTaskId = id;
+  const t = tasks.find(x=>x.id===id);
+  if (!t) return;
+  const m = MEMBERS[t.assignee];
+  document.getElementById('det-title').textContent = t.title;
+  const av = document.getElementById('det-av');
+  av.className = `av ${m.cls}`;
+  av.textContent = t.assignee;
+  const pct = getSubProgress(t);
+  document.getElementById('det-pct').textContent = pct+'%';
+  document.getElementById('det-prog-fill').style.width = pct+'%';
+  const overdue = isOverdue(t);
+  const dueStr = t.due_date ? `<span class="badge ${overdue?'b-overdue':'b-blue'}">${overdue?'⚠️ ':''} ${formatDue(t)}</span>` : '<span class="badge b-gray">Sin fecha</span>';
+  const notifTxt = !t.notif?'':t.notif==='60'?'<span class="badge b-orange">🔔 1hr antes</span>':t.notif==='30'?'<span class="badge b-orange">🔔 30min antes</span>':t.notif==='15'?'<span class="badge b-orange">🔔 15min antes</span>':'<span class="badge b-orange">🔔 Alarma</span>';
+  document.getElementById('det-badges').innerHTML = priorityBadge(t.priority)+dueStr+notifTxt+(t.done?'<span class="badge b-green">✓ Completado</span>':overdue?'<span class="badge b-overdue">Atrasado</span>':'');
+  const subs = t.subs || [];
+  document.getElementById('det-subs').innerHTML = subs.length ? subs.map((s,i)=>`
+    <div class="sub-item">
+      <div class="sub-chk ${s.d?'done':''}" onclick="toggleSub(${id},${i})">${s.d?'<i class="ti ti-check"></i>':''}</div>
+      <span class="sub-txt ${s.d?'struck':''}">${s.t}</span>
+    </div>`).join('') : '<div style="font-size:12px;color:var(--text4);padding:4px 0">Sin subpendientes</div>';
+  const comments = t.comments || [];
+  document.getElementById('det-comments').innerHTML = comments.map(c=>{
+    const cm = MEMBERS[c.who] || MEMBERS['MG'];
+    return `<div class="comment">${avHtml(c.who,28)}<div class="cb"><div class="cname">${cm.name}</div><div class="ctxt">${c.txt}</div></div></div>`;
+  }).join('');
+  document.getElementById('ov-detail').classList.add('open');
+}
+
+async function toggleSub(taskId, idx) {
+  const t = tasks.find(x=>x.id===taskId);
+  t.subs[idx].d = !t.subs[idx].d;
+  if (t.subs.every(s=>s.d) && t.subs.length) t.done = true;
+  if (t.done) t.completed_at = new Date().toISOString();
+  await saveTaskToDB(t);
+  openDetail(taskId);
+  renderAll();
+}
+
+async function addSub() {
+  const inp = document.getElementById('sub-input');
+  if (!inp.value.trim()) return;
+  const t = tasks.find(x=>x.id===currentTaskId);
+  if (!t.subs) t.subs = [];
+  t.subs.push({t:inp.value.trim(),d:false});
+  inp.value = '';
+  await saveTaskToDB(t);
+  openDetail(currentTaskId);
+}
+
+async function addComment() {
+  const inp = document.getElementById('comment-input');
+  if (!inp.value.trim()) return;
+  const t = tasks.find(x=>x.id===currentTaskId);
+  if (!t.comments) t.comments = [];
+  t.comments.push({who:activeMember,txt:inp.value.trim(),ts:new Date().toISOString()});
+  inp.value = '';
+  await saveTaskToDB(t);
+  const comments = t.comments;
+  document.getElementById('det-comments').innerHTML = comments.map(c=>{
+    const cm = MEMBERS[c.who]||MEMBERS['MG'];
+    return `<div class="comment">${avHtml(c.who,28)}<div class="cb"><div class="cname">${cm.name}</div><div class="ctxt">${c.txt}</div></div></div>`;
+  }).join('');
+}
+
+async function toggleDone(id) {
+  const t = tasks.find(x=>x.id===id);
+  t.done = !t.done;
+  if (t.done) {
+    t.completed_at = new Date().toISOString();
+    if (t.subs) t.subs.forEach(s=>s.d=true);
+    scheduleNotification(t, true);
+  } else {
+    t.completed_at = null;
+  }
+  await saveTaskToDB(t);
+  renderAll();
+}
+
+function confirmDelete() {
+  document.getElementById('ov-delete').classList.add('open');
+}
+
+async function deleteTask() {
+  await deleteTaskFromDB(currentTaskId);
+  tasks = tasks.filter(x=>x.id!==currentTaskId);
+  closeOverlay('ov-delete');
+  closeOverlay('ov-detail');
+  renderAll();
+}
+
+// ============================================================
+// NEW TASK
+// ============================================================
+function openNew() {
+  document.getElementById('new-title').value='';
+  document.getElementById('new-date').value='';
+  document.getElementById('new-time').value='';
+  document.getElementById('new-priority').value='normal';
+  document.getElementById('new-assign').value=activeMember;
+  document.getElementById('new-sheet-sub').textContent=`Asignado a ${MEMBERS[activeMember].name}`;
+  selectedNotif='';
+  document.querySelectorAll('.notif-opt').forEach(o=>o.classList.remove('sel'));
+  document.getElementById('notif-section').style.display='none';
+  document.getElementById('custom-notif').classList.remove('show');
+  document.getElementById('ov-new').classList.add('open');
+}
+
+document.getElementById('new-date').addEventListener('change', function(){
+  document.getElementById('notif-section').style.display = this.value ? 'block' : 'none';
+  if (!this.value) { selectedNotif=''; document.getElementById('custom-notif').classList.remove('show'); }
+});
+
+function selNotif(val, el) {
+  selectedNotif = val;
+  document.querySelectorAll('.notif-opt').forEach(o=>o.classList.remove('sel'));
+  el.classList.add('sel');
+  document.getElementById('custom-notif').classList.toggle('show', val==='custom');
+}
+
+async function saveTask() {
+  const title = document.getElementById('new-title').value.trim();
+  if (!title) { document.getElementById('new-title').focus(); return; }
+  const dateVal = document.getElementById('new-date').value;
+  const timeVal = document.getElementById('new-time').value || '09:00';
+  const due_date = dateVal ? `${dateVal}T${timeVal}:00` : null;
+  let notifVal = selectedNotif;
+  if (selectedNotif==='custom') {
+    const cd = document.getElementById('custom-date').value;
+    const ct = document.getElementById('custom-time').value;
+    notifVal = cd&&ct ? `custom:${cd}T${ct}:00` : '';
+  }
+  const newTask = {
+    id: Date.now(),
+    title,
+    assignee: document.getElementById('new-assign').value,
+    priority: document.getElementById('new-priority').value,
+    due_date,
+    done: false,
+    completed_at: null,
+    subs: [],
+    comments: [],
+    notif: notifVal,
+    created_at: new Date().toISOString()
+  };
+  const saved = await saveTaskToDB(newTask);
+  if (!saved) tasks.unshift(newTask);
+  if (due_date && notifVal) scheduleNotification(newTask, false);
+  closeOverlay('ov-new');
+  renderAll();
+}
+
+// ============================================================
+// NOTIFICATIONS
+// ============================================================
+async function requestNotifPermission() {
+  if (!('Notification' in window)) return;
+  if (Notification.permission === 'default') {
+    await Notification.requestPermission();
+  }
+}
+
+function scheduleNotification(task, cancel) {
+  if (!('Notification' in window) || !task.due_date || !task.notif) return;
+  const due = new Date(task.due_date);
+  let notifTime;
+  if (task.notif === '60') notifTime = new Date(due.getTime() - 3600000);
+  else if (task.notif === '30') notifTime = new Date(due.getTime() - 1800000);
+  else if (task.notif === '15') notifTime = new Date(due.getTime() - 900000);
+  else if (task.notif.startsWith('custom:')) notifTime = new Date(task.notif.replace('custom:',''));
+  else return;
+
+  if (cancel) return;
+  const ms = notifTime - new Date();
+  if (ms <= 0) return;
+  setTimeout(() => {
+    if (Notification.permission === 'granted') {
+      new Notification('⏰ TRANSPORTE HD', {
+        body: `Pendiente próximo: ${task.title}`,
+        icon: '/icon-192.png'
+      });
+    }
+  }, ms);
+}
+
+// ============================================================
+// VOICE (Web Speech API)
+// ============================================================
+function toggleMic() {
+  if (!('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) {
+    alert('Tu navegador no soporta reconocimiento de voz. Usa Chrome.');
+    return;
+  }
+  if (recording) { recognition && recognition.stop(); return; }
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  const recognition = new SR();
+  recognition.lang = 'es-MX';
+  recognition.continuous = false;
+  recognition.interimResults = false;
+  recognition.onstart = () => {
+    recording = true;
+    const btn = document.getElementById('micBtn');
+    btn.classList.add('rec');
+    btn.innerHTML = '<i class="ti ti-player-stop"></i>';
+  };
+  recognition.onresult = e => {
+    document.getElementById('new-title').value = e.results[0][0].transcript;
+  };
+  recognition.onend = () => {
+    recording = false;
+    const btn = document.getElementById('micBtn');
+    btn.classList.remove('rec');
+    btn.innerHTML = '<i class="ti ti-microphone"></i>';
+  };
+  recognition.start();
+}
+
+// ============================================================
+// NAVIGATION & INIT
+// ============================================================
+function showScreen(name) {
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('sc-'+name).classList.add('active');
+  if (name==='calendar') { renderBolitas('cal-bolitas',calMember,'setCalMember',true); renderCalendar(); }
+  if (name==='dashboard') { renderDashboard(); }
+  if (name==='history') { renderBolitas('hist-bolitas',histMember,'setHistMember',true); renderHistory(); }
+}
+
+function closeOverlay(id) {
+  document.getElementById(id).classList.remove('open');
+}
+
+function renderAll() {
+  renderHomeTasks();
+  const assignSel = document.getElementById('new-assign');
+  if (assignSel) {
+    assignSel.innerHTML = Object.keys(MEMBERS).map(k=>`<option value="${k}">${MEMBERS[k].name}</option>`).join('');
+    assignSel.value = activeMember;
+  }
+}
+
+// INIT
+(async () => {
+  renderBolitas('home-bolitas','MG','setActiveMember',false);
+  setActiveMember('MG');
+  await requestNotifPermission();
+  await loadTasks();
+  setupRealtime();
+})();
+</script>
+</body>
+</html>
